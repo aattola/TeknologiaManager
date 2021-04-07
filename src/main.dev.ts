@@ -15,6 +15,7 @@ import electron, { app, BrowserWindow, shell, ipcMain, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import puppeteer from 'puppeteer-core';
+import fs from 'fs';
 import MenuBuilder from './menu';
 
 export default class AppUpdater {
@@ -147,14 +148,31 @@ ipcMain.on('synchronous-message', async (event, arg) => {
       `--load-extension=${repl}\\Documents\\Destia`,
       `--disable-infobars`,
     ];
-    const browser = await puppeteer.launch({
-      defaultViewport: undefined,
-      executablePath:
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-      headless: false,
-      ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'],
-      args: customArgs,
-    });
+
+    let browser;
+    if (
+      fs.existsSync(
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+      )
+    ) {
+      browser = await puppeteer.launch({
+        defaultViewport: undefined,
+        executablePath:
+          'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        headless: false,
+        ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'],
+        args: customArgs,
+      });
+    } else {
+      browser = await puppeteer.launch({
+        defaultViewport: undefined,
+        executablePath:
+          'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        headless: false,
+        ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'],
+        args: customArgs,
+      });
+    }
 
     const page = await browser.newPage();
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
