@@ -135,7 +135,7 @@ app.on('activate', () => {
 
 ipcMain.on('synchronous-message', async (event, arg) => {
   console.log(arg); // prints "pingasync "
-  if (arg == 'puppeteer') {
+  if (arg === 'puppeteer') {
     mainWindow?.hide();
     const customArgs = [
       `--start-maximized`,

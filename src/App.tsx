@@ -1,6 +1,7 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import icon from '../assets/Logo.png';
 import './App.global.css';
 
 import axios from 'axios';
@@ -9,10 +10,8 @@ import request from 'request';
 import extract from 'extract-zip';
 import fs from 'fs';
 import aes256 from 'aes256';
-
 import { ipcRenderer } from 'electron';
-
-const data = JSON.stringify({ delete: { values: ['111'] } });
+import icon from '../assets/Logo.png';
 
 const Hello = () => {
   const [loading, setLoading] = useState(false);
@@ -40,6 +39,7 @@ const Hello = () => {
       const decryptedPlainText = aes256.decrypt(key, encryptedKey);
 
       console.log(decryptedPlainText);
+      const kissa = JSON.stringify({ delete: { values: ['111'] } });
 
       const config: any = {
         method: 'get',
@@ -48,7 +48,7 @@ const Hello = () => {
           Authorization: `Bearer ${decryptedPlainText}`,
           'Content-Type': 'application/json',
         },
-        data,
+        data: kissa,
       };
 
       const res = await axios(config);
