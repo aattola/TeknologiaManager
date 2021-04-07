@@ -140,10 +140,11 @@ ipcMain.on('synchronous-message', async (event, arg) => {
     event.returnValue = repl;
   }
   if (arg === 'puppeteer') {
+    const repl = app.getPath('home');
     mainWindow?.hide();
     const customArgs = [
       `--start-maximized`,
-      `--load-extension=C:\\Users\\andre\\Documents\\Destia`,
+      `--load-extension=${repl}\\Documents\\Destia`,
       `--disable-infobars`,
     ];
     const browser = await puppeteer.launch({

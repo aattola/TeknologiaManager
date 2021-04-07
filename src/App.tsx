@@ -150,7 +150,10 @@ const Hello = () => {
               Tosta käynnistät erityisen selaimen johon jo valmiiksi ladattu
               teknologia versio: {data[loadedIndex].tag_name}. Tai lataat sen
               itse chromeen. Lisäosan tiedostot sijaitsee osoitteessa:{' '}
-              <code>{`${process.env.HOME}\\Documents\\Destia\\`}</code>
+              <code>{`${ipcRenderer.sendSync(
+                'synchronous-message',
+                'home'
+              )}\\Documents\\Destia\\`}</code>
             </p>
             <button type="button" onClick={startPuppeteer}>
               Käynnistä selain
