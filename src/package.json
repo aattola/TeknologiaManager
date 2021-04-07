@@ -1,12 +1,12 @@
 {
-  "name": "electron-react-boilerplate",
-  "productName": "electron-react-boilerplate",
-  "version": "2.3.0",
-  "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
+  "name": "destia",
+  "productName": "destia",
+  "version": "1.0.0",
+  "description": "Destia production app",
   "main": "./main.prod.js",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
+    "name": "Destia",
+    "email": "destia@destia.ru",
     "url": "https://github.com/electron-react-boilerplate"
   },
   "scripts": {
