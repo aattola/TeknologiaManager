@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, screen } from 'electron';
+import electron, { app, BrowserWindow, shell, ipcMain, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import puppeteer from 'puppeteer-core';
@@ -135,6 +135,10 @@ app.on('activate', () => {
 
 ipcMain.on('synchronous-message', async (event, arg) => {
   console.log(arg); // prints "pingasync "
+  if (arg === 'home') {
+    const repl = app.getPath('home');
+    event.returnValue = repl;
+  }
   if (arg === 'puppeteer') {
     mainWindow?.hide();
     const customArgs = [

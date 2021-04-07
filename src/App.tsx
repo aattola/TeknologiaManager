@@ -6,11 +6,12 @@ import './App.global.css';
 
 import axios from 'axios';
 import request from 'request';
+import electron, { app, ipcRenderer } from 'electron';
 
 import extract from 'extract-zip';
 import fs from 'fs';
 import aes256 from 'aes256';
-import { ipcRenderer } from 'electron';
+
 import icon from '../assets/Logo.png';
 
 const Hello = () => {
@@ -67,8 +68,9 @@ const Hello = () => {
         body: JSON.stringify({ delete: { values: ['111'] } }),
       };
 
-      const dir = `${process.env.HOME}\\Documents\\Destia\\`;
-
+      const pa = ipcRenderer.sendSync('synchronous-message', 'home');
+      const dir = `${pa}\\Documents\\Destia\\`;
+      console.log(dir, pa);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
       }
