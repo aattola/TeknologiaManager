@@ -165,8 +165,7 @@ ipcMain.on('synchronous-message', async (event, arg) => {
           executablePath:
             'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
           headless: false,
-          userDataDir:
-            'C:\\Users\\andre\\AppData\\Local\\Google\\Chrome\\User Data',
+          userDataDir: `${repl}\\AppData\\Local\\Google\\Chrome\\User Data`,
           ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'],
           args: customArgs,
         });
@@ -175,8 +174,7 @@ ipcMain.on('synchronous-message', async (event, arg) => {
           defaultViewport: undefined,
           executablePath:
             'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-          userDataDir:
-            'C:\\Users\\andre\\AppData\\Local\\Google\\Chrome\\User Data',
+          userDataDir: `${repl}\\AppData\\Local\\Google\\Chrome\\User Data`,
           headless: false,
           ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'],
           args: customArgs,
