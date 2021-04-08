@@ -11,8 +11,118 @@ import electron, { app, ipcRenderer } from 'electron';
 import extract from 'extract-zip';
 import fs from 'fs';
 import aes256 from 'aes256';
+import styled, { css } from 'styled-components';
+import TextField from '@material-ui/core/TextField';
+import ButtonA from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-import icon from '../assets/Logo.png';
+import icon from '../assets/NewLogo.png';
+
+const Loader = styled(CircularProgress)`
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: ${(props) => (props.loaded ? 0 : 1)};
+`;
+
+const LoaderImage = styled.img`
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: ${(props) => (props.loaded ? 0 : 1)};
+`;
+
+const RedditTextField = styled.input`
+  display: block;
+  font-size: 1.6rem;
+  padding: 0.5rem;
+  margin: 1.25rem 0;
+  outline: none;
+  background: #313131;
+  border: 1px solid #464646;
+  border-radius: 6px;
+  color: white;
+  width: 180px;
+`;
+
+const AppToolbar = styled.div`
+  background: #313131;
+  border: 1px solid #464646;
+  border-radius: 6px;
+  padding: 0 20px;
+  max-height: 54px;
+  min-height: 54px;
+  justify-content: space-between;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  position: relative;
+
+  display: flex;
+  align-items: center;
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 4fr;
+  grid-gap: 20px;
+  margin-top: 20px;
+`;
+
+const Card = styled.div`
+  background: #313131;
+  border: 1px solid #464646;
+  border-radius: 6px;
+  padding: 10px 20px;
+`;
+
+const VersionCard = styled(Card)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0px;
+  padding: 10px 20px;
+
+  ${(props) =>
+    props.downloaded &&
+    css`
+      background: white;
+      color: black;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    `}
+`;
+
+const Button = styled(ButtonA)`
+  background: #313131;
+  color: white;
+  box-sizing: border-box;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 0, 0, 0);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  outline: none;
+  color: white !important;
+  /*
+  :focus {
+    border: 1px solid #464646;
+  }
+
+  :active {
+    box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  :hover {
+    border: 1px solid #464646;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  } */
+`;
+
+const ButtonOutlined = styled(Button)`
+  border: 1px solid #464646;
+  color: white !important;
+  margin-bottom: 5px;
+`;
+
+const Container = styled.div`
+  padding: 20px;
+`;
 
 const Hello = () => {
   const [loading, setLoading] = useState(false);
@@ -96,7 +206,7 @@ const Hello = () => {
 
   async function loadIndex(i) {
     setLoading(true);
-    setLadattu(false);
+    // setLadattu(false);
     setError(false);
     download(i);
   }
@@ -106,80 +216,99 @@ const Hello = () => {
   window.loadIndex = loadIndex;
 
   return (
-    <div>
+    <Container>
       {/* <Ticker>
         {({ index }) => (
           <h1 style={{ color: '#5F9B41' }}>DESTIA PARAS TEKNOLOGIA</h1>
         )}
       </Ticker> */}
-      <div className="Hello">
-        <img width="250px" alt="icon" src={icon} />
-      </div>
-      <center>
-        <h1 style={{ color: '#5F9B41' }}>Tosta vaan ladaten pistät</h1>
-        {!key && (
-          <h3>
-            Muista kirjoittaa oikein koska tää tallennetaan tulevaisuutta varten
-            tähän. Joten ekalla kirjotatkin oikein
-          </h3>
-        )}
-        <input
-          type="password"
-          onChange={(e) => setKey(e.target.value)}
-          value={key}
-        />
-        {error && (
-          <h3>Joku virhe varmaa salasana väärin: {JSON.stringify(error)}</h3>
-        )}
-      </center>
-      <div className="Hello">
-        {!ladattu ? (
-          <button disabled={loading} type="button" onClick={() => download()}>
-            {loading ? 'Ladataan' : 'Lataa uusin'}
-          </button>
-        ) : (
-          <div>
-            <h1>
-              Ladattu: <code>{data[loadedIndex].tag_name}</code>
-            </h1>
-            <h3>
-              HUOM: Sivun resoluutio voi olla väärä. Jos se on luo uusi sivu ja
-              siirry käyttämään sitä
-            </h3>
-            <p>
-              Tosta käynnistät erityisen selaimen johon jo valmiiksi ladattu
-              teknologia versio: {data[loadedIndex].tag_name}. Tai lataat sen
-              itse chromeen. Lisäosan tiedostot sijaitsee osoitteessa:{' '}
-              <code>{`${ipcRenderer.sendSync(
-                'synchronous-message',
-                'home'
-              )}\\Documents\\Destia\\`}</code>
-            </p>
-            <button type="button" onClick={startPuppeteer}>
-              Käynnistä selain
-            </button>
-          </div>
-        )}
-        <div>
-          <button type="button" onClick={() => window.close()}>
-            Sulje
-          </button>
+      <AppToolbar>
+        <>
+          <LoaderImage loaded={loading} width="34px" alt="icon" src={icon} />
+          <Loader
+            loaded={!loading}
+            style={{
+              color: 'white',
+              position: 'absolute',
+              left: 0,
+              padding: '17px',
+            }}
+          />
+        </>
 
-          {data[0] && <p>Versiot: </p>}
-          {data.map((version, i) => {
-            return (
-              <p
-                onClick={() => loadIndex(i)}
-                style={{ margin: 0, cursor: 'pointer' }}
-                key={version.id}
-              >
-                <code>{version.tag_name}</code>
-              </p>
-            );
-          })}
+        <div>
+          <h1
+            style={{ fontSize: '22px', color: 'white', fontFamily: 'Roboto' }}
+          >
+            Versiot
+          </h1>
         </div>
-      </div>
-    </div>
+      </AppToolbar>
+      <Grid>
+        <Card style={{ height: 'fit-content' }}>
+          <h1>Moro {!key && 'kirjoita avaimesi'}</h1>
+
+          <RedditTextField
+            onChange={(e) => setKey(e.target.value)}
+            value={key}
+            type="password"
+            label="Avain"
+            size="small"
+          />
+
+          {ladattu && (
+            <div>
+              <h3>
+                Ladattu: <code>{data[loadedIndex].tag_name}</code>
+              </h3>
+              <h3>
+                HUOM: Sivun resoluutio voi olla väärä. Jos se on luo uusi sivu
+                ja siirry käyttämään sitä
+              </h3>
+              <h3>
+                Tosta käynnistät erityisen selaimen johon jo valmiiksi ladattu
+                teknologia versio: {data[loadedIndex].tag_name}. Tai lataat sen
+                itse chromeen. Lisäosan tiedostot sijaitsee osoitteessa:{' '}
+                <code>{`${ipcRenderer.sendSync(
+                  'synchronous-message',
+                  'home'
+                )}\\Documents\\Destia\\`}</code>
+              </h3>
+              <ButtonOutlined type="button" onClick={startPuppeteer}>
+                Käynnistä selain
+              </ButtonOutlined>
+            </div>
+          )}
+
+          <ButtonOutlined
+            disabled={loading}
+            type="button"
+            onClick={() => download()}
+          >
+            {loading ? 'Ladataan' : 'Lataa uusin'}
+          </ButtonOutlined>
+        </Card>
+        <Card>
+          <h1>Versiot:</h1>
+
+          {data[0]
+            ? data.map((version, i) => {
+                return (
+                  <VersionCard downloaded={i === loadedIndex} key={version.id}>
+                    <h3 style={{ margin: 0 }}>{version.tag_name}</h3>
+                    <Button
+                      disabled={i === loadedIndex}
+                      onClick={() => loadIndex(i)}
+                    >
+                      Lataa
+                    </Button>
+                  </VersionCard>
+                );
+              })
+            : 'Lataa uusin ensin.'}
+        </Card>
+      </Grid>
+    </Container>
   );
 };
 

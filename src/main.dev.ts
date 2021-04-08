@@ -72,11 +72,13 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     show: false,
     width: 750,
-    height: 550,
+    height: 600,
     frame: false,
+    titleBarStyle: 'hidden',
     icon: getAssetPath('icon.png'),
     webPreferences: {
       nodeIntegration: true,
+      enableRemoteModule: true,
     },
   });
 
@@ -135,7 +137,7 @@ app.on('activate', () => {
 });
 
 ipcMain.on('synchronous-message', async (event, arg) => {
-  console.log(arg); // prints "pingasync "
+  // console.log(arg); // prints "pingasync "
   if (arg === 'home') {
     const repl = app.getPath('home');
     event.returnValue = repl;
