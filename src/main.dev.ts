@@ -16,6 +16,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import puppeteer from 'puppeteer-core';
 import fs from 'fs';
+import kill from 'kill-process-by-name';
 import MenuBuilder from './menu';
 
 export default class AppUpdater {
@@ -143,46 +144,52 @@ ipcMain.on('synchronous-message', async (event, arg) => {
     event.returnValue = repl;
   }
   if (arg === 'puppeteer') {
-    const repl = app.getPath('home');
-    mainWindow?.hide();
-    const customArgs = [
-      `--start-maximized`,
-      `--load-extension=${repl}\\Documents\\Destia`,
-      `--disable-infobars`,
-    ];
+    kill('chrome');
+    setTimeout(async () => {
+      const repl = app.getPath('home');
+      mainWindow?.hide();
+      const customArgs = [
+        `--start-maximized`,
+        `--load-extension=${repl}\\Documents\\Destia`,
+        `--disable-infobars`,
+      ];
 
-    let browser;
-    if (
-      fs.existsSync(
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-      )
-    ) {
-      browser = await puppeteer.launch({
-        defaultViewport: undefined,
-        executablePath:
-          'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        headless: false,
-        ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'],
-        args: customArgs,
+      let browser;
+      if (
+        fs.existsSync(
+          'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+        )
+      ) {
+        browser = await puppeteer.launch({
+          defaultViewport: undefined,
+          executablePath:
+            'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+          headless: false,
+          userDataDir:
+            'C:\\Users\\andre\\AppData\\Local\\Google\\Chrome\\User Data',
+          ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'],
+          args: customArgs,
+        });
+      } else {
+        browser = await puppeteer.launch({
+          defaultViewport: undefined,
+          executablePath:
+            'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+          userDataDir:
+            'C:\\Users\\andre\\AppData\\Local\\Google\\Chrome\\User Data',
+          headless: false,
+          ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'],
+          args: customArgs,
+        });
+      }
+
+      browser.on('disconnected', () => {
+        mainWindow?.show();
       });
-    } else {
-      browser = await puppeteer.launch({
-        defaultViewport: undefined,
-        executablePath:
-          'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        headless: false,
-        ignoreDefaultArgs: ['--disable-extensions', '--enable-automation'],
-        args: customArgs,
-      });
-    }
-
-    const page = await browser.newPage();
-    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-    page.setViewport({ width, height, deviceScaleFactor: 1 });
-    await page.goto('https://google.com');
-
-    browser.on('disconnected', () => {
-      mainWindow?.show();
-    });
+      const page = await browser.newPage();
+      const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+      page.setViewport({ width, height, deviceScaleFactor: 1 });
+      await page.goto('https://google.com');
+    }, 3000);
   }
 });

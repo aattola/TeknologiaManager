@@ -104,21 +104,21 @@ export default class MenuBuilder {
       label: 'View',
       submenu: [
         {
-          label: 'Reload',
+          label: 'Lataa uudelleen',
           accelerator: 'Command+R',
           click: () => {
             this.mainWindow.webContents.reload();
           },
         },
         {
-          label: 'Toggle Full Screen',
+          label: 'Fullscreen',
           accelerator: 'Ctrl+Command+F',
           click: () => {
             this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
           },
         },
         {
-          label: 'Toggle Developer Tools',
+          label: 'Sitä dev toolssia',
           accelerator: 'Alt+Command+I',
           click: () => {
             this.mainWindow.webContents.toggleDevTools();
@@ -130,7 +130,7 @@ export default class MenuBuilder {
       label: 'View',
       submenu: [
         {
-          label: 'Toggle Full Screen',
+          label: 'Fullscreen',
           accelerator: 'Ctrl+Command+F',
           click: () => {
             this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());

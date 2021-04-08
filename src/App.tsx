@@ -17,15 +17,18 @@ import ButtonA from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import icon from '../assets/NewLogo.png';
+import AlertDialog from './OpenAlert';
 
 const Loader = styled(CircularProgress)`
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   opacity: ${(props) => (props.loaded ? 0 : 1)};
+  pointer-events: none;
 `;
 
 const LoaderImage = styled.img`
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   opacity: ${(props) => (props.loaded ? 0 : 1)};
+  cursor: pointer;
 `;
 
 const RedditTextField = styled.input`
@@ -127,6 +130,7 @@ const Container = styled.div`
 const Hello = () => {
   const [loading, setLoading] = useState(false);
   const [ladattu, setLadattu] = useState(false);
+  const [open, setOpen] = useState(false);
   const [key, setKey] = useState('');
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
@@ -201,7 +205,11 @@ const Hello = () => {
   }
 
   async function startPuppeteer() {
+    setLoading(true);
     ipcRenderer.send('synchronous-message', 'puppeteer');
+    setTimeout(() => {
+      setLoading(false);
+    }, 5000);
   }
 
   async function loadIndex(i) {
@@ -224,7 +232,14 @@ const Hello = () => {
       </Ticker> */}
       <AppToolbar>
         <>
-          <LoaderImage loaded={loading} width="34px" alt="icon" src={icon} />
+          <LoaderImage
+            onClick={() => window.open('https://jeffe.co')}
+            loaded={loading}
+            width="34px"
+            alt="icon"
+            src={icon}
+          />
+
           <Loader
             loaded={!loading}
             style={{
@@ -240,7 +255,7 @@ const Hello = () => {
           <h1
             style={{ fontSize: '22px', color: 'white', fontFamily: 'Roboto' }}
           >
-            Versiot
+            Destia Manageri
           </h1>
         </div>
       </AppToolbar>
@@ -274,9 +289,12 @@ const Hello = () => {
                   'home'
                 )}\\Documents\\Destia\\`}</code>
               </h3>
-              <ButtonOutlined type="button" onClick={startPuppeteer}>
-                Käynnistä selain
-              </ButtonOutlined>
+
+              <AlertDialog
+                open={open}
+                setOpen={setOpen}
+                next={startPuppeteer}
+              />
             </div>
           )}
 
