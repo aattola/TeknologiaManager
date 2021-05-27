@@ -11,7 +11,14 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import electron, { app, BrowserWindow, shell, ipcMain, screen } from 'electron';
+import electron, {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  screen,
+  dialog,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import puppeteer from 'puppeteer-core';
@@ -139,6 +146,68 @@ app.on('activate', () => {
 
 ipcMain.on('synchronous-message', async (event, arg) => {
   // console.log(arg); // prints "pingasync "
+  if (arg === 'meniok') {
+    dialog.showMessageBox({
+      message: 'Ok poistettiin kansio menestyksekkäästi',
+      type: 'info',
+      title: 'Menestystä',
+    });
+    event.returnValue = 'ok';
+  }
+
+  if (arg === 'tarkista') {
+    autoUpdater
+      .checkForUpdates()
+      .then((huh) => {
+        console.log('huhhuh', huh);
+
+        dialog.showMessageBox({
+          message: 'löyty päivitys',
+          type: 'info',
+          title: 'Menestystä',
+        });
+      })
+      .catch((err) => {
+        console.log('KUSI', err);
+
+        dialog.showMessageBox({
+          message: `Nyt kusi etsiminen ${err}`,
+          type: 'error',
+          title: 'KUSI',
+        });
+      });
+  }
+
+  if (arg === 'devtools') {
+    mainWindow?.webContents.toggleDevTools();
+  }
+
+  if (arg === 'forceupdate') {
+    autoUpdater.checkForUpdates();
+    setTimeout(() => {
+      autoUpdater
+        .downloadUpdate()
+        .then((huh) => {
+          console.log('huhhuh', huh);
+
+          dialog.showMessageBox({
+            message: 'Käynnistä uudelleen niin päivitellään',
+            type: 'info',
+            title: 'Menestystä',
+          });
+        })
+        .catch((err) => {
+          console.log('KUSI', err);
+
+          dialog.showMessageBox({
+            message: `Nyt kusi päivitys ${err}`,
+            type: 'error',
+            title: 'KUSI',
+          });
+        });
+      event.returnValue = 'ok';
+    }, 5000);
+  }
   if (arg === 'home') {
     const repl = app.getPath('home');
     event.returnValue = repl;

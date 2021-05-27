@@ -6,7 +6,8 @@ import './App.global.css';
 
 import axios from 'axios';
 import request from 'request';
-import electron, { app, ipcRenderer } from 'electron';
+import electron, { app, ipcRenderer, dialog } from 'electron';
+import rimraf from 'rimraf';
 
 import extract from 'extract-zip';
 import fs from 'fs';
@@ -18,6 +19,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import icon from '../assets/NewLogo.png';
 import AlertDialog from './OpenAlert';
+import CustomizedAccordions from './Accordion';
 
 const Loader = styled(CircularProgress)`
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -125,6 +127,7 @@ const ButtonOutlined = styled(Button)`
 
 const Container = styled.div`
   padding: 20px;
+  padding-top: 0px;
 `;
 
 const Hello = () => {
@@ -133,8 +136,10 @@ const Hello = () => {
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState('');
   const [data, setData] = useState([]);
+  const [seData, setSeData] = useState({});
   const [error, setError] = useState(false);
-  const [loadedIndex, setLoadedIndex] = useState(0);
+  const [loadedIndex, setLoadedIndex] = useState(false);
+  const [toggle, setToggle] = useState(false);
 
   useEffect(() => {
     if (window.localStorage.getItem('destia')) {
@@ -144,7 +149,7 @@ const Hello = () => {
     }
   }, []);
 
-  async function download(i = 0) {
+  async function download(i) {
     setLoading(true);
     setError(false);
 
@@ -167,8 +172,27 @@ const Hello = () => {
       };
 
       const res = await axios(config);
-      const { id } = res.data[i].assets[0];
-      const name = `${res.data[i].assets[0].node_id}${res.data[i].assets[0].name}`;
+      if (!i) {
+        const seData2 = {};
+        res.data.forEach((version: { tag_name: string }) => {
+          const category = version.tag_name.split('-')[1];
+          if (seData2[category]) {
+            seData2[category] = [...seData2[category], version];
+          } else {
+            seData2[category] = [version];
+          }
+        });
+
+        setSeData(seData2);
+        setLoading(false);
+        setData(res.data);
+        setLadattu(true);
+
+        return;
+      }
+
+      const { id } = i.assets[0];
+      const name = `${i.assets[0].node_id}${i.assets[0].name}`;
 
       const options = {
         method: 'GET',
@@ -191,9 +215,10 @@ const Hello = () => {
       const stream = request(options).pipe(fs.createWriteStream(dir + name));
       stream.on('finish', async function () {
         await extract(dir + name, { dir });
-        console.log('DONEEEE');
+        console.log('DONEEEE', res.data);
+
         setLoading(false);
-        setData(res.data);
+        setData(i);
         setLadattu(true);
         setLoadedIndex(i);
       });
@@ -230,51 +255,137 @@ const Hello = () => {
           <h1 style={{ color: '#5F9B41' }}>DESTIA PARAS TEKNOLOGIA</h1>
         )}
       </Ticker> */}
-      <AppToolbar>
-        <>
-          <LoaderImage
-            onClick={() => window.open('https://jeffe.co')}
-            loaded={loading}
-            width="34px"
-            alt="icon"
-            src={icon}
-          />
+      <div style={{ position: 'sticky', top: 0, paddingTop: 20, zIndex: 9999 }}>
+        <AppToolbar>
+          <>
+            <LoaderImage
+              onClick={() => window.open('https://jeffe.co')}
+              loaded={loading}
+              width="34px"
+              alt="icon"
+              src={icon}
+            />
 
-          <Loader
-            loaded={!loading}
-            style={{
-              color: 'white',
-              position: 'absolute',
-              left: 0,
-              padding: '17px',
-            }}
-          />
-        </>
+            <Loader
+              loaded={!loading}
+              style={{
+                color: 'white',
+                position: 'absolute',
+                left: 0,
+                padding: '17px',
+              }}
+            />
+          </>
 
-        <div>
-          <h1
-            style={{ fontSize: '22px', color: 'white', fontFamily: 'Roboto' }}
-          >
-            Destia Manageri
-          </h1>
-        </div>
-      </AppToolbar>
+          <div>
+            {toggle ? (
+              <>
+                <Button
+                  onClick={() => {
+                    console.log('loading', loading);
+                    console.log('open', open);
+                    console.log('key', key);
+                    console.log('data', data);
+
+                    console.log('seData', seData);
+                    console.log('error', error);
+                    console.log('loadedIndex', loadedIndex);
+                    console.log('toggle', toggle);
+
+                    const pa = ipcRenderer.sendSync(
+                      'synchronous-message',
+                      'home'
+                    );
+                    const dir = `${pa}\\Documents\\Destia\\`;
+                    console.log('DIR', dir, pa);
+
+                    const encryptedKey =
+                      'luFkjEJGhszZ8zKelTIMoc9tmYYWYVzWhFjKkXxn/Fb8lHD3DY6upypSjOuma6C05jajTDTnVRo=';
+                    const decryptedPlainText = aes256.decrypt(
+                      key,
+                      encryptedKey
+                    );
+                    console.log('decryptedPlainText', decryptedPlainText);
+                  }}
+                >
+                  Log state
+                </Button>
+                <Button
+                  onClick={() => {
+                    ipcRenderer.send('synchronous-message', 'forceupdate');
+                  }}
+                >
+                  Päivitä
+                </Button>
+                <Button
+                  onClick={() => {
+                    ipcRenderer.send('synchronous-message', 'tarkista');
+                  }}
+                >
+                  Tarkista
+                </Button>
+                <Button
+                  onClick={() => {
+                    ipcRenderer.send('synchronous-message', 'devtools');
+                  }}
+                >
+                  DevTools
+                </Button>
+                <Button
+                  onClick={() => {
+                    const pa = ipcRenderer.sendSync(
+                      'synchronous-message',
+                      'home'
+                    );
+                    const dir = `${pa}\\Documents\\Destia\\`;
+
+                    rimraf(dir, (err) => {
+                      if (err) {
+                        console.log('ISO ERROR:', err);
+                        return alert('ERRORi', err);
+                      }
+
+                      ipcRenderer.send('synchronous-message', 'meniok');
+                    });
+                  }}
+                >
+                  Poista kansio
+                </Button>
+                <Button onClick={() => setToggle(!toggle)}>Takaisin</Button>
+              </>
+            ) : (
+              <h1
+                onClick={() => setToggle(!toggle)}
+                style={{
+                  fontSize: '22px',
+                  color: 'white',
+                  fontFamily: 'Roboto',
+                }}
+              >
+                Destia Manageri
+              </h1>
+            )}
+          </div>
+        </AppToolbar>
+      </div>
       <Grid>
         <Card style={{ height: 'fit-content' }}>
           <h1>Moro {!key && 'kirjoita avaimesi'}</h1>
 
-          <RedditTextField
-            onChange={(e) => setKey(e.target.value)}
-            value={key}
-            type="password"
-            label="Avain"
-            size="small"
-          />
+          {!ladattu && (
+            <RedditTextField
+              onChange={(e) => setKey(e.target.value)}
+              value={key}
+              type="password"
+              label="Avain"
+              size="small"
+            />
+          )}
 
-          {ladattu && (
+          {ladattu && loadedIndex && (
             <div>
               <h3>
-                Ladattu: <code>{data[loadedIndex].tag_name}</code>
+                Ladattu: <code>{data.tag_name}</code>
               </h3>
               <h3>
                 HUOM: Sivun resoluutio voi olla väärä. Jos se on luo uusi sivu
@@ -282,8 +393,8 @@ const Hello = () => {
               </h3>
               <h3>
                 Tosta käynnistät erityisen selaimen johon jo valmiiksi ladattu
-                teknologia versio: {data[loadedIndex].tag_name}. Tai lataat sen
-                itse chromeen. Lisäosan tiedostot sijaitsee osoitteessa:{' '}
+                teknologia versio: {data.tag_name}. Tai lataat sen itse
+                chromeen. Lisäosan tiedostot sijaitsee osoitteessa:{' '}
                 <code>{`${ipcRenderer.sendSync(
                   'synchronous-message',
                   'home'
@@ -298,18 +409,26 @@ const Hello = () => {
             </div>
           )}
 
-          <ButtonOutlined
-            disabled={loading}
-            type="button"
-            onClick={() => download()}
-          >
-            {loading ? 'Ladataan' : 'Lataa uusin'}
-          </ButtonOutlined>
+          {!ladattu && (
+            <ButtonOutlined
+              disabled={loading}
+              type="button"
+              onClick={() => download()}
+            >
+              {loading ? 'Ladataan' : 'Lataa uusin'}
+            </ButtonOutlined>
+          )}
         </Card>
         <Card>
           <h1>Versiot:</h1>
 
-          {data[0]
+          <CustomizedAccordions
+            loadIndex={(i) => loadIndex(i)}
+            loadedIndex={loadedIndex}
+            data={seData}
+          />
+
+          {/* {data[0]
             ? data.map((version, i) => {
                 return (
                   <VersionCard downloaded={i === loadedIndex} key={version.id}>
@@ -323,7 +442,7 @@ const Hello = () => {
                   </VersionCard>
                 );
               })
-            : 'Lataa uusin ensin.'}
+            : 'Lataa uusin ensin.'} */}
         </Card>
       </Grid>
     </Container>
