@@ -8,6 +8,8 @@ import axios from 'axios';
 import request from 'request';
 import electron, { app, ipcRenderer, dialog } from 'electron';
 import rimraf from 'rimraf';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 
 import extract from 'extract-zip';
 import fs from 'fs';
@@ -63,7 +65,7 @@ const AppToolbar = styled.div`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: 2fr 4fr;
+  grid-template-columns: 2fr 2fr;
   grid-gap: 20px;
   margin-top: 20px;
 `;
@@ -140,6 +142,7 @@ const Hello = () => {
   const [error, setError] = useState(false);
   const [loadedIndex, setLoadedIndex] = useState(false);
   const [toggle, setToggle] = useState(false);
+  const [extra, setExtra] = useState(false);
 
   useEffect(() => {
     if (window.localStorage.getItem('destia')) {
@@ -387,19 +390,33 @@ const Hello = () => {
               <h3>
                 Ladattu: <code>{data.tag_name}</code>
               </h3>
-              <h3>
-                HUOM: Sivun resoluutio voi olla väärä. Jos se on luo uusi sivu
-                ja siirry käyttämään sitä
-              </h3>
-              <h3>
-                Tosta käynnistät erityisen selaimen johon jo valmiiksi ladattu
-                teknologia versio: {data.tag_name}. Tai lataat sen itse
-                chromeen. Lisäosan tiedostot sijaitsee osoitteessa:{' '}
-                <code>{`${ipcRenderer.sendSync(
-                  'synchronous-message',
-                  'home'
-                )}\\Documents\\Destia\\`}</code>
-              </h3>
+              <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                {data.body.replace('↵', '\n')}
+              </ReactMarkdown>
+
+              <Button
+                style={{ marginTop: 10 }}
+                onClick={() => setExtra(!extra)}
+              >
+                Extra infot täältä
+              </Button>
+              {extra && (
+                <>
+                  <h3>
+                    HUOM: Sivun resoluutio voi olla väärä. Jos se on luo uusi
+                    sivu ja siirry käyttämään sitä
+                  </h3>
+                  <h3>
+                    Tosta käynnistät erityisen selaimen johon jo valmiiksi
+                    ladattu teknologia versio: {data.tag_name}. Tai lataat sen
+                    itse chromeen. Lisäosan tiedostot sijaitsee osoitteessa:{' '}
+                    <code>{`${ipcRenderer.sendSync(
+                      'synchronous-message',
+                      'home'
+                    )}\\Documents\\Destia\\`}</code>
+                  </h3>
+                </>
+              )}
 
               <AlertDialog
                 open={open}

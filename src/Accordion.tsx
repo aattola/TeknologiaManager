@@ -127,7 +127,11 @@ export default function CustomizedAccordions({
           expanded={expanded === i2}
           onChange={handleChange(i2)}
         >
-          <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+          <AccordionSummary
+            style={{ margin: 0 }}
+            aria-controls="panel1d-content"
+            id="panel1d-header"
+          >
             <Typography>{entry[0]}</Typography>
           </AccordionSummary>
           <AccordionDetails>
