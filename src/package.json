@@ -1,7 +1,7 @@
 {
   "name": "destia",
   "productName": "destia",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Destia production app",
   "main": "./main.prod.js",
   "author": {

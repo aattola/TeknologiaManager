@@ -19,7 +19,7 @@ import TextField from '@material-ui/core/TextField';
 import ButtonA from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import icon from '../assets/NewLogo.png';
+import icon from '../assets/penton.png';
 import AlertDialog from './OpenAlert';
 import CustomizedAccordions from './Accordion';
 
@@ -264,7 +264,7 @@ const Hello = () => {
             <LoaderImage
               onClick={() => window.open('https://jeffe.co')}
               loaded={loading}
-              width="34px"
+              width="48px"
               alt="icon"
               src={icon}
             />
@@ -365,7 +365,7 @@ const Hello = () => {
                   fontFamily: 'Roboto',
                 }}
               >
-                Destia Manageri
+                Destia Moderaattori
               </h1>
             )}
           </div>
